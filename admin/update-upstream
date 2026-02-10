@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -e -u
+
+# shellcheck source=admin/lib/common.inc.bash
+source "$(dirname "${BASH_SOURCE[0]}")/lib/common.inc.bash"
+
+HELP=$(cat <<EOH
+Usage: $SCRIPT_NAME [merge|rebase]
+
+Defaults to merge. Requires a clean working tree on master.
+EOH
+)
+
+mode="${1:-merge}"
+if [ "$mode" = "help" ] || [ "$mode" = "-h" ] || [ "$mode" = "--help" ]; then
+  echo "$HELP"
+  exit 0
+fi
+
+if [ "$mode" != "merge" ] && [ "$mode" != "rebase" ]; then
+  echo >&2 "$SCRIPT_NAME: invalid mode '$mode' (use merge or rebase)"
+  exit 64
+fi
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$branch" != "master" ]; then
+  echo >&2 "$SCRIPT_NAME: must be on master (current: $branch)"
+  exit 1
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+  echo >&2 "$SCRIPT_NAME: working tree not clean. Commit or stash first."
+  exit 1
+fi
+
+git fetch upstream
+
+if [ "$mode" = "rebase" ]; then
+  git rebase upstream/master
+else
+  git merge --no-edit upstream/master
+fi
+
+echo "OK: updated master from upstream/master"
