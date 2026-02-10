@@ -55,3 +55,6 @@ ENV MUSICBRAINZ_RABBITMQ_SERVER=mq \
 ENV POSTGRES_USER=musicbrainz
 ENV POSTGRES_PASSWORD=musicbrainz
 
+
+COPY scripts/* /usr/local/bin/
+RUN chmod 0755 /usr/local/bin/indexer-*.sh
