@@ -12,11 +12,7 @@ This repo is a streamlined, automation-first wrapper around the official MusicBr
 
 ## Quick start
 
-1. Create `.env` from the example and validate it:
-
-```bash
-admin/preflight
-```
+1. Edit `.env` (included in this repo) to match your environment.
 
 2. Start everything (bootstrap + services):
 
@@ -35,6 +31,12 @@ Common settings:
 - `MUSICBRAINZ_WEB_SERVER_PORT`
 - `STATIC_RESOURCES_LOCATION`
 - `MUSICBRAINZ_SERVER_PROCESSES`
+- `MUSICBRAINZ_NETWORK_TYPE` (bridge | macvlan | ipvlan)
+- `MUSICBRAINZ_NETWORK_PARENT` (required for macvlan/ipvlan)
+- `MUSICBRAINZ_NETWORK_SUBNET` (CIDR, required for macvlan/ipvlan)
+- `MUSICBRAINZ_NETWORK_GATEWAY` (required for macvlan/ipvlan)
+- `MUSICBRAINZ_NETWORK_IP` (optional static IP for musicbrainz on macvlan/ipvlan)
+- `MUSICBRAINZ_IPVLAN_MODE` (l2 | l3, optional for ipvlan)
 - `MUSICBRAINZ_REPLICATION_ENABLED`
 - `MUSICBRAINZ_REPLICATION_TIME` (HH:MM, 24-hour)
 - `MUSICBRAINZ_REPLICATION_TOKEN`
@@ -45,12 +47,46 @@ Common settings:
 - `POSTGRES_SHARED_BUFFERS`
 - `POSTGRES_SHM_SIZE`
 - `SOLR_HEAP`
+- `LMBRIDGE_IMAGE` (LM-Bridge)
+- `LMBRIDGE_PORT` (LM-Bridge)
+- `LMBRIDGE_NETWORK_IP` (LM-Bridge, macvlan/ipvlan only)
 
 Advanced settings are below the divider in `.env` and generally do not need changes.
 
+## LM-Bridge (optional)
+
+LM-Bridge is included by default via `compose/lm-bridge.yml` and exposes port `5001`.
+It runs on the internal network and connects to the existing `db`, `search`, and
+`redis` services.
+
+When `MUSICBRAINZ_NETWORK_TYPE` is `macvlan` or `ipvlan`, LM-Bridge is also
+attached to the `lan` network. Set `LMBRIDGE_NETWORK_IP` if you want a static
+LAN IP; otherwise Docker will assign one.
+
+To see the assigned IPs for LM-Bridge (including the `lan` network when used):
+
+```bash
+docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{println $k $v.IPAddress}}{{end}}' $(docker compose ps -q lmbridge)
+```
+
+To disable LM-Bridge, remove `compose/lm-bridge.yml` from `COMPOSE_FILE` in `.env`.
+
+## Network mode
+
+By default everything runs on the standard bridge network. If you set
+`MUSICBRAINZ_NETWORK_TYPE` to `macvlan` or `ipvlan`, the `musicbrainz`
+service is attached to a second `lan` network so it can receive a LAN IP.
+Other services remain on the bridge network for internal communication.
+
+When switching to `macvlan` or `ipvlan`, regenerate the network override:
+
+```bash
+admin/render-network
+```
+
 ## Replication
 
-Replication is controlled by three env vars:
+Replication is controlled by three env vars (enabled by default):
 - `MUSICBRAINZ_REPLICATION_ENABLED=true|false`
 - `MUSICBRAINZ_REPLICATION_TIME=HH:MM`
 - `MUSICBRAINZ_REPLICATION_TOKEN=...`
@@ -99,6 +135,16 @@ admin/bootstrap reset
 - `admin/reindex-now` – run search reindex immediately
 - `admin/update-upstream` – pull changes from upstream
 
+## Publishing images
+
+GitHub Actions builds and publishes images on push to `master`:
+- GHCR: `ghcr.io/<owner>/<repo>/<service>`
+- Docker Hub (optional): `docker.io/<username>/musicbrainz-docker/<service>`
+
+To enable Docker Hub publishing, set repository secrets:
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
+
 ## Upstream updates
 
 This repo is not a fork. Upstream is configured as:
@@ -116,4 +162,3 @@ admin/update-upstream
 - First import and indexing can take hours and consume hundreds of GB.
 - This setup keeps the official multi-service layout and adds automation.
 - Solr and other service ports should not be exposed publicly without proper hardening.
-

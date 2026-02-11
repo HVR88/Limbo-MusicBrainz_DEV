@@ -24,6 +24,14 @@ is_true() {
   esac
 }
 
+is_ipv4() {
+  [[ "${1:-}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]
+}
+
+is_cidr() {
+  [[ "${1:-}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$ ]]
+}
+
 if is_true "${MUSICBRAINZ_REPLICATION_ENABLED:-0}"; then
   if [ -z "${MUSICBRAINZ_REPLICATION_TOKEN:-}" ]; then
     echo >&2 "Replication enabled but MUSICBRAINZ_REPLICATION_TOKEN is empty."
@@ -71,6 +79,86 @@ if is_true "${MUSICBRAINZ_INDEXING_ENABLED:-0}"; then
     esac
   fi
 fi
+
+# Network configuration validation
+network_type="${MUSICBRAINZ_NETWORK_TYPE:-bridge}"
+network_type="${network_type,,}"
+
+case "$network_type" in
+  ""|bridge)
+    if [ -n "${MUSICBRAINZ_NETWORK_PARENT:-}" ] \
+      || [ -n "${MUSICBRAINZ_NETWORK_SUBNET:-}" ] \
+      || [ -n "${MUSICBRAINZ_NETWORK_GATEWAY:-}" ] \
+      || [ -n "${MUSICBRAINZ_NETWORK_IP_RANGE:-}" ] \
+      || [ -n "${MUSICBRAINZ_NETWORK_IP:-}" ] \
+      || [ -n "${MUSICBRAINZ_IPVLAN_MODE:-}" ] \
+      || [ -n "${LMBRIDGE_NETWORK_IP:-}" ]; then
+      echo >&2 "Network values are set but MUSICBRAINZ_NETWORK_TYPE is bridge."
+      echo >&2 "Clear them or set MUSICBRAINZ_NETWORK_TYPE to macvlan or ipvlan."
+      ok=0
+    fi
+    ;;
+  macvlan|ipvlan)
+    if [ -z "${COMPOSE_FILE:-}" ] || [[ "${COMPOSE_FILE:-}" != *"local/network.override.yml"* ]]; then
+      echo >&2 "COMPOSE_FILE must include local/network.override.yml when MUSICBRAINZ_NETWORK_TYPE is '$network_type'."
+      ok=0
+    fi
+
+    if [ -z "${MUSICBRAINZ_NETWORK_PARENT:-}" ]; then
+      echo >&2 "MUSICBRAINZ_NETWORK_PARENT is required for $network_type."
+      ok=0
+    fi
+
+    if [ -z "${MUSICBRAINZ_NETWORK_SUBNET:-}" ]; then
+      echo >&2 "MUSICBRAINZ_NETWORK_SUBNET is required for $network_type."
+      ok=0
+    elif ! is_cidr "${MUSICBRAINZ_NETWORK_SUBNET:-}"; then
+      echo >&2 "MUSICBRAINZ_NETWORK_SUBNET must be CIDR (got '${MUSICBRAINZ_NETWORK_SUBNET:-}')."
+      ok=0
+    fi
+
+    if [ -z "${MUSICBRAINZ_NETWORK_GATEWAY:-}" ]; then
+      echo >&2 "MUSICBRAINZ_NETWORK_GATEWAY is required for $network_type."
+      ok=0
+    elif ! is_ipv4 "${MUSICBRAINZ_NETWORK_GATEWAY:-}"; then
+      echo >&2 "MUSICBRAINZ_NETWORK_GATEWAY must be an IPv4 address (got '${MUSICBRAINZ_NETWORK_GATEWAY:-}')."
+      ok=0
+    fi
+
+    if [ -n "${MUSICBRAINZ_NETWORK_IP_RANGE:-}" ] && ! is_cidr "${MUSICBRAINZ_NETWORK_IP_RANGE:-}"; then
+      echo >&2 "MUSICBRAINZ_NETWORK_IP_RANGE must be CIDR (got '${MUSICBRAINZ_NETWORK_IP_RANGE:-}')."
+      ok=0
+    fi
+
+    if [ -n "${MUSICBRAINZ_NETWORK_IP:-}" ] && ! is_ipv4 "${MUSICBRAINZ_NETWORK_IP:-}"; then
+      echo >&2 "MUSICBRAINZ_NETWORK_IP must be an IPv4 address (got '${MUSICBRAINZ_NETWORK_IP:-}')."
+      ok=0
+    fi
+
+    if [ -n "${LMBRIDGE_NETWORK_IP:-}" ] && ! is_ipv4 "${LMBRIDGE_NETWORK_IP:-}"; then
+      echo >&2 "LMBRIDGE_NETWORK_IP must be an IPv4 address (got '${LMBRIDGE_NETWORK_IP:-}')."
+      ok=0
+    fi
+
+    if [ "$network_type" = "ipvlan" ] && [ -n "${MUSICBRAINZ_IPVLAN_MODE:-}" ]; then
+      mode="${MUSICBRAINZ_IPVLAN_MODE,,}"
+      case "$mode" in
+        l2|l3) ;;
+        *)
+          echo >&2 "MUSICBRAINZ_IPVLAN_MODE must be l2 or l3 (got '${MUSICBRAINZ_IPVLAN_MODE:-}')."
+          ok=0
+          ;;
+      esac
+    elif [ -n "${MUSICBRAINZ_IPVLAN_MODE:-}" ]; then
+      echo >&2 "MUSICBRAINZ_IPVLAN_MODE is only valid when MUSICBRAINZ_NETWORK_TYPE=ipvlan."
+      ok=0
+    fi
+    ;;
+  *)
+    echo >&2 "MUSICBRAINZ_NETWORK_TYPE must be bridge, macvlan, or ipvlan (got '$network_type')."
+    ok=0
+    ;;
+esac
 if [ "$ok" -ne 1 ]; then
   exit 1
 fi

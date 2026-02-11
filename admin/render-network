@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+
+set -e -u
+
+SCRIPT_NAME=$(basename "$0")
+MB_DOCKER_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+
+ENV_FILE="$MB_DOCKER_ROOT/.env"
+OUT_FILE="$MB_DOCKER_ROOT/local/network.override.yml"
+
+if [ ! -f "$ENV_FILE" ]; then
+  echo >&2 "$SCRIPT_NAME: missing .env. Run: admin/first-run"
+  exit 1
+fi
+
+# shellcheck disable=SC1090
+source "$ENV_FILE"
+
+network_type="${MUSICBRAINZ_NETWORK_TYPE:-bridge}"
+network_type="${network_type,,}"
+compose_file="${COMPOSE_FILE:-}"
+lmbridge_enabled=0
+if [[ "$compose_file" == *"compose/lm-bridge.yml"* ]]; then
+  lmbridge_enabled=1
+fi
+
+mkdir -p "$MB_DOCKER_ROOT/local"
+
+case "$network_type" in
+  ""|bridge)
+    cat >"$OUT_FILE" <<EOF
+# Description: Network override (generated)
+networks:
+  default:
+    driver: bridge
+EOF
+    ;;
+  macvlan|ipvlan)
+    parent="${MUSICBRAINZ_NETWORK_PARENT:-}"
+    subnet="${MUSICBRAINZ_NETWORK_SUBNET:-}"
+    gateway="${MUSICBRAINZ_NETWORK_GATEWAY:-}"
+    ip_range="${MUSICBRAINZ_NETWORK_IP_RANGE:-}"
+    ipvlan_mode="${MUSICBRAINZ_IPVLAN_MODE:-}"
+    ipvlan_mode="${ipvlan_mode,,}"
+
+    if [ -z "$parent" ] || [ -z "$subnet" ] || [ -z "$gateway" ]; then
+      echo >&2 "$SCRIPT_NAME: missing required network settings for '$network_type'."
+      echo >&2 "Set MUSICBRAINZ_NETWORK_PARENT, MUSICBRAINZ_NETWORK_SUBNET, and MUSICBRAINZ_NETWORK_GATEWAY."
+      exit 1
+    fi
+
+    {
+      echo "# Description: Network override (generated)"
+      echo "networks:"
+      echo "  lan:"
+      echo "    driver: $network_type"
+      echo "    driver_opts:"
+      echo "      parent: $parent"
+
+      if [ "$network_type" = "ipvlan" ] && [ -n "$ipvlan_mode" ]; then
+        echo "      ipvlan_mode: $ipvlan_mode"
+      fi
+
+      echo "    ipam:"
+      echo "      config:"
+      echo "        - subnet: $subnet"
+      echo "          gateway: $gateway"
+
+      if [ -n "$ip_range" ]; then
+        echo "          ip_range: $ip_range"
+      fi
+
+      echo
+      echo "services:"
+      echo "  musicbrainz:"
+      echo "    networks:"
+      echo "      default: {}"
+      if [ -n "${MUSICBRAINZ_NETWORK_IP:-}" ]; then
+        echo "      lan:"
+        echo "        ipv4_address: ${MUSICBRAINZ_NETWORK_IP}"
+      else
+        echo "      lan: {}"
+      fi
+
+      if [ "$lmbridge_enabled" -eq 1 ]; then
+        echo "  lmbridge:"
+        echo "    networks:"
+        echo "      default: {}"
+        if [ -n "${LMBRIDGE_NETWORK_IP:-}" ]; then
+          echo "      lan:"
+          echo "        ipv4_address: ${LMBRIDGE_NETWORK_IP}"
+        else
+          echo "      lan: {}"
+        fi
+      fi
+    } >"$OUT_FILE"
+    ;;
+  *)
+    echo >&2 "$SCRIPT_NAME: unknown MUSICBRAINZ_NETWORK_TYPE '$network_type'."
+    exit 1
+    ;;
+esac
+
+echo "OK: wrote network override to $OUT_FILE"
