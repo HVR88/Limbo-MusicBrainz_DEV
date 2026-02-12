@@ -1,7 +1,9 @@
 name: Bump Version
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - master
 
 permissions:
   contents: write
