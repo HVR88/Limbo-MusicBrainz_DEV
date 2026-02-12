@@ -20,6 +20,7 @@ permissions:
 jobs:
   publish-ghcr:
     name: Publish to GHCR
+    if: ${{ false }}
     runs-on: ubuntu-latest
     env:
       IMAGE_NAMESPACE: ghcr.io/${{ github.repository }}
