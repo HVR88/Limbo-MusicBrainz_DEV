@@ -28,7 +28,8 @@ Edit `.env` (top section) before first run:
 
 - Remove the `NO_OP` line from the **.env** file
 - `MUSICBRAINZ_REPLICATION_TOKEN` (required for replication)
-- `MUSICBRAINZ_WEB_SERVER_HOST` / `MUSICBRAINZ_WEB_SERVER_PORT` as needed
+- `MUSICBRAINZ_WEB_SERVER_HOST` ('localhost' default, edit as needed)
+- `MUSICBRAINZ_WEB_SERVER_PORT` ('5000' default, edit as needed)
 - Optional provider keys for LM-Bridge (FANART/LASTFM/SPOTIFY)
 
 ### Start the containers
