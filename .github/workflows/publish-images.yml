@@ -305,7 +305,16 @@ jobs:
           cp docker-compose.yml deploy-out/
           cp compose/bootstrap.yml compose/indexing-cron.yml compose/lm-bridge.yml compose/dockerhub-images.yml deploy-out/compose/
           cp default/postgres.env default/indexer.ini deploy-out/default/
-          cp local/network.override.yml deploy-out/local/
+          if [ -f local/network.override.yml ]; then
+            cp local/network.override.yml deploy-out/local/
+          else
+            cat > deploy-out/local/network.override.yml <<'EOF'
+# Description: Network override (generated)
+networks:
+  default:
+    driver: bridge
+EOF
+          fi
           cp build/solr/scripts/bootstrap-indexes.sh deploy-out/build/solr/scripts/
           cp .env deploy-out/.env
 
