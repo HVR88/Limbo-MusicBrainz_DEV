@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/HVR88/LM-Bridge-DEV/main/assets/lmbridge-icon.png" alt="LM Bridge" width="500" />
 </p>
 
-# MBMS_PLUS
+# MBMS PLUS
 
 **_MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge_**
 

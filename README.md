@@ -8,7 +8,7 @@ This repo contains a streamlined, automation-first wrapper around the official M
 
 > [!NOTE]
 >
-> **To deploy pre-built docker containers clone the production repo: https://github.com/HVR88/MBMS_PLUS**
+> **To deploy pre-built docker containers, clone production repo: https://github.com/HVR88/MBMS_PLUS**
 
 ## Highlights
 
