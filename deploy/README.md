@@ -1,35 +1,28 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HVR88/LM-Bridge-DEV/main/assets/lmbridge-icon.png" alt="LM Bridge" width="500" />
+</p>
+
 # MBMS_PLUS
 
-MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge.
-
-This repo provides a prebuilt, docker-compose based deployment of MBMS_PLUS.
+**_MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge_**
 
 ## Quick start
-
-1. Clone the repo:
 
 ```bash
 git clone https://github.com/HVR88/MBMS_PLUS.git
 cd MBMS_PLUS
+docker compose up -d
 ```
 
-2. Edit `.env` (Recommended section at the top):
+## Configure
+
+Edit `.env` (top section) before first run:
 
 - `MUSICBRAINZ_REPLICATION_TOKEN` (required for replication)
 - `MUSICBRAINZ_WEB_SERVER_HOST` / `MUSICBRAINZ_WEB_SERVER_PORT` as needed
 - Optional provider keys for LM-Bridge (FANART/LASTFM/SPOTIFY)
 
-3. Start the stack:
-
-```bash
-docker compose up -d
-```
-
 ## Notes
 
 - First import and indexing can take hours and require large disk (hundreds of GB).
-- This stack is intended for private use; do not expose services publicly without hardening.
-
-## Reference
-
-For full details, see the main project README in the source repo: https://github.com/HVR88/musicbrainz_stack-DEV
+- This stack is intended for private use on a LAN behind a firewall; do not expose services publicly without hardening.
