@@ -49,7 +49,40 @@ jobs:
           USER_LC=$(echo "$DOCKERHUB_USERNAME" | tr '[:upper:]' '[:lower:]')
           echo "IMAGE_NAMESPACE=${USER_LC}" >> "$GITHUB_ENV"
 
-          source .env
+          python3 - <<'PY' > /tmp/mbms_envvars
+          from pathlib import Path
+
+          env_path = Path(".env")
+          if not env_path.exists():
+            raise SystemExit(".env file not found.")
+
+          values = {}
+          for raw in env_path.read_text().splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#"):
+              continue
+            if "=" not in raw:
+              continue
+            key, val = raw.split("=", 1)
+            key = key.strip()
+            val = val.strip()
+            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+              val = val[1:-1]
+            values[key] = val
+
+          for key in (
+            "POSTGRES_VERSION",
+            "MB_SOLR_VERSION",
+            "MUSICBRAINZ_SERVER_VERSION",
+            "MUSICBRAINZ_BUILD_SEQUENCE",
+          ):
+            if key in values:
+              print(f"{key}={values[key]}")
+          PY
+          while IFS= read -r line; do
+            echo "$line" >> "$GITHUB_ENV"
+            export "$line"
+          done < /tmp/mbms_envvars
 
           MBMS_VERSION=$(cat VERSION)
           echo "MBMS_VERSION=$MBMS_VERSION" >> "$GITHUB_ENV"
