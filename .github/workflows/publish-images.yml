@@ -279,7 +279,6 @@ jobs:
           mkdir -p deploy-out/compose deploy-out/default deploy-out/local deploy-out/build/solr/scripts
 
           cp docker-compose.yml deploy-out/
-          cp deploy-assets/run.sh deploy-out/run.sh
           cp deploy-assets/README.md deploy-out/README.md
           echo "$MBMS_NEXT_VERSION_FULL" > deploy-out/VERSION
           cp compose/bootstrap.yml compose/indexing-cron.yml compose/lm-bridge.yml compose/dockerhub-images.yml deploy-out/compose/

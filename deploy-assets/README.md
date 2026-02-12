@@ -35,7 +35,7 @@ Edit `.env` (top section) before first run:
 ### 4. Start the containers download and startup
 
 ```
-./run.sh
+docker compose up -d
 ```
 
 ## Notes
