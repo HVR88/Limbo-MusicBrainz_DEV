@@ -1,0 +1,98 @@
+name: Purge Docker Hub Tags (MBMS_PLUS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type YES to delete all mbms-plus-* tags"
+        required: true
+        default: "NO"
+
+permissions:
+  contents: read
+
+jobs:
+  purge-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate confirmation
+        run: |
+          set -e
+          if [ "${{ github.event.inputs.confirm }}" != "YES" ]; then
+            echo "Confirmation missing. Set confirm=YES to proceed." >&2
+            exit 1
+          fi
+
+      - name: Delete Docker Hub tags
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN_MBMS }}
+        run: |
+          set -e
+          python3 - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import os
+          import sys
+          from urllib.parse import quote
+          from urllib.request import Request, urlopen
+
+          username = os.environ.get("DOCKERHUB_USERNAME")
+          password = os.environ.get("DOCKERHUB_TOKEN")
+          if not username or not password:
+            raise SystemExit("Missing DOCKERHUB_USERNAME or DOCKERHUB_TOKEN_MBMS")
+
+          def api_json(method: str, url: str, data: dict | None = None, token: str | None = None):
+            headers = {}
+            payload = None
+            if data is not None:
+              payload = json.dumps(data).encode("utf-8")
+              headers["Content-Type"] = "application/json"
+            if token:
+              headers["Authorization"] = f"JWT {token}"
+            req = Request(url, data=payload, headers=headers, method=method)
+            with urlopen(req) as resp:
+              body = resp.read()
+              if body:
+                return json.loads(body)
+              return None
+
+          token = api_json(
+            "POST",
+            "https://hub.docker.com/v2/users/login/",
+            {"username": username, "password": password},
+          )["token"]
+
+          repos = [
+            "mbms-plus-db",
+            "mbms-plus-musicbrainz",
+            "mbms-plus-bootstrap",
+            "mbms-plus-search",
+            "mbms-plus-indexer",
+            "mbms-plus-mq",
+          ]
+
+          for repo in repos:
+            print(f"Purging tags for {username}/{repo}...")
+            page = 1
+            while True:
+              url = f"https://hub.docker.com/v2/repositories/{username}/{repo}/tags?page_size=100&page={page}"
+              data = api_json("GET", url, token=token)
+              if not data or "results" not in data:
+                break
+              tags = [t["name"] for t in data.get("results", [])]
+              if not tags:
+                break
+              for tag in tags:
+                tag_q = quote(tag, safe="")
+                del_url = f"https://hub.docker.com/v2/repositories/{username}/{repo}/tags/{tag_q}/"
+                api_json("DELETE", del_url, token=token)
+                print(f"  deleted {repo}:{tag}")
+              if data.get("next"):
+                page += 1
+              else:
+                break
+
+          print("Done.")
+          PY
