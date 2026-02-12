@@ -148,27 +148,27 @@ jobs:
           set -e
           case "${{ matrix.name }}" in
             db)
-              SHORT_DESC="PostgreSQL database for MBMS_PLUS — MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
+              SHORT_DESC="PostgreSQL database for MBMS_PLUS - MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
               README_FILE=".github/dockerhub/README-db.md"
               ;;
             musicbrainz)
-              SHORT_DESC="MusicBrainz web server for MBMS_PLUS — MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
+              SHORT_DESC="MusicBrainz web server for MBMS_PLUS - MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
               README_FILE=".github/dockerhub/README-musicbrainz.md"
               ;;
             bootstrap)
-              SHORT_DESC="Bootstrap helper for MBMS_PLUS — imports dumps, materialized tables, and indexes."
+              SHORT_DESC="Bootstrap helper for MBMS_PLUS - imports dumps, materialized tables, and indexes."
               README_FILE=".github/dockerhub/README-bootstrap.md"
               ;;
             search)
-              SHORT_DESC="Solr search for MBMS_PLUS — MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
+              SHORT_DESC="Solr search for MBMS_PLUS - MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
               README_FILE=".github/dockerhub/README-search.md"
               ;;
             indexer)
-              SHORT_DESC="SIR indexer for MBMS_PLUS — MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
+              SHORT_DESC="SIR indexer for MBMS_PLUS - MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
               README_FILE=".github/dockerhub/README-indexer.md"
               ;;
             mq)
-              SHORT_DESC="RabbitMQ broker for MBMS_PLUS — MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
+              SHORT_DESC="RabbitMQ broker for MBMS_PLUS - MusicBrainz Mirror Server PLUS + Lidarr API Bridge."
               README_FILE=".github/dockerhub/README-mq.md"
               ;;
             *)
