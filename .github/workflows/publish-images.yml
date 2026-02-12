@@ -132,6 +132,7 @@ jobs:
           esac
 
           TAGS="$IMAGE_REGISTRY/$IMAGE_NAMESPACE/${IMAGE_REPO_PREFIX}-${{ matrix.name }}:$MBMS_VERSION"
+          TAGS="$TAGS"$'\n'"$IMAGE_REGISTRY/$IMAGE_NAMESPACE/${IMAGE_REPO_PREFIX}-${{ matrix.name }}:latest"
 
           printf "TAGS<<EOF\n%s\nEOF\n" "$TAGS" >> "$GITHUB_ENV"
           printf "BUILD_ARGS<<EOF\n%s\nEOF\n" "$BUILD_ARGS" >> "$GITHUB_ENV"
