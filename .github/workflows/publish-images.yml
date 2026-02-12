@@ -356,6 +356,7 @@ jobs:
           mkdir -p deploy-out/compose deploy-out/default deploy-out/local deploy-out/build/solr/scripts
 
           cp docker-compose.yml deploy-out/
+          cp deploy/README.md deploy-out/README.md
           cp VERSION deploy-out/
           cp compose/bootstrap.yml compose/indexing-cron.yml compose/lm-bridge.yml compose/dockerhub-images.yml deploy-out/compose/
           cp default/postgres.env default/indexer.ini deploy-out/default/
