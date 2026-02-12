@@ -84,8 +84,6 @@ jobs:
             export "$line"
           done < /tmp/mbms_envvars
 
-          MBMS_VERSION=$(cat VERSION)
-          echo "MBMS_VERSION=$MBMS_VERSION" >> "$GITHUB_ENV"
           python3 - <<'PY' >> "$GITHUB_ENV"
           import re
           from pathlib import Path
@@ -245,8 +243,6 @@ jobs:
       # shellcheck disable=SC1091
         run: |
           set -e
-          MBMS_VERSION=$(cat VERSION)
-          echo "MBMS_VERSION=$MBMS_VERSION" >> "$GITHUB_ENV"
           python3 - <<'PY' >> "$GITHUB_ENV"
           import re
           from pathlib import Path
@@ -341,7 +337,6 @@ jobs:
             return out
 
           lines = update_compose_file(lines)
-          lines = upsert(lines, "MBMS_VERSION", os.environ["MBMS_TAG_VERSION"])
           lines = upsert(lines, "MBMS_DOCKERHUB_NAMESPACE", "espressomatic")
           lines = upsert(lines, "MBMS_DOCKERHUB_REPO_PREFIX", "mbms-plus")
           lines = upsert(lines, "SIR_VERSION", os.environ["SIR_VERSION"])
