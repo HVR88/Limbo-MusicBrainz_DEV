@@ -6,26 +6,22 @@
 
 **_MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge_**
 
-> [!CAUTION]
->
-> This container stack is exclusively for personal use. **NO COMMERCIAL OR BUSINESS USE IS PERMITTED.**
+The initial "compose up" will start with a 3.5GB download, and the full installation after setup needs an additional 300GB. **This setup takes at least a few hours.**
 
-_The initial "compose up" will start a 3.5GB download, with the full installation after setup needing an additional 300GB. **This setup takes at least a few hours.**_
+_It's recommended to install onto a volume with at least 500GB free to allow for future replication and updates._
 
 > [!TIP]
 >
-> It's recommended you install onto a volume with at least 500GB free to allow for future replication and updates.
->
-> If you're deploying from a terminal session, it's strongly recommended to use screen or tmux so the compose process can continue running if your terminal session drops (closing the window, computer goes to sleep, etc.)
+> If you're deploying from a terminal session, use screen or tmux so the compose process can continue running if your terminal session drops (closing the window, computer goes to sleep, etc.)
 
 ## Quick start
 
-### 1. Register for MusicBrainz access - REQUIRED
+### 1. Register for MusicBrainz access (REQUIRED)
 
 - Create an account at https://MusicBrainz.com
 - Get your _Live Data Feed Access Token_ from Metabrainz https://metabrainz.org/profile
 
-### 2. Download the MBMS_PLUS project (small/quick)
+### 2. Download the MBMS_PLUS project
 
 ```
 mkdir -p /opt/docker/
@@ -34,7 +30,7 @@ git clone https://github.com/HVR88/MBMS_PLUS.git
 cd /opt/docker/MBMS_PLUS
 ```
 
-### 3. Minimally Configure .env file - REQUIRED
+### 3. Minimally Configure .env file (REQUIRED)
 
 Edit `.env` (top section) before first run:
 
@@ -44,7 +40,7 @@ Edit `.env` (top section) before first run:
 - `MUSICBRAINZ_WEB_SERVER_PORT` ('5000' default, edit as needed)
 - Optional provider keys/tokens for LM-Bridge (Cover Art Archive/Fanart/Last.FM)
 
-### 4. Start the containers download and startup - LARGE / HOURS
+### 4. Download containers, build DB & startup
 
 ```
 docker compose up -d
@@ -52,10 +48,17 @@ docker compose up -d
 
 ## Wrap-up
 
-You can monitor the progress of the long database jobs:
+You can monitor the progress of the long compose jobs:
 
 ```
-docker compose logs -f --no-log-prefix bootstrap
+docker compose logs -f --timestamps
+```
+
+Or with less "noise"
+
+```
+docker compose logs -f --no-log-prefix \
+  bootstrap search-bootstrap search musicbrainz indexer indexer-cron lmbridge
 ```
 
 When finished, your MusicBrainz mirror will be available at **http://HOST_IP_Address:5000**
@@ -67,8 +70,12 @@ When finished, your MusicBrainz mirror will be available at **http://HOST_IP_Add
 
 ## Notes
 
-- First import and indexing will take hours and requires up to 300GB of available storage
+- _The first import and indexing will take hours and requires up to 300GB of available storage_
 - This stack is intended for private use on a LAN behind a firewall; don't expose services publicly without hardening
+
+> [!CAUTION]
+>
+> This container stack is exclusively for personal use. **NO COMMERCIAL OR BUSINESS USE IS PERMITTED.**
 
 ### Source code, licenses and development repo:
 
