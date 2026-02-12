@@ -1,6 +1,6 @@
-# MusicBrainz Docker (DEV)
+# MusicBrainz Stack (DEV)
 
-This repo is a streamlined, automation-first wrapper around the official MusicBrainz Docker stack. It keeps the modern multi-service architecture (Postgres, Solr, SIR, RabbitMQ, Redis) but removes the multi-step manual setup by adding bootstrap and scheduling services.
+This repo is a streamlined, automation-first wrapper around the official MusicBrainz Docker stack plus a custom Lidarr/MusicBrainz API bridge. It keeps the modern multi-service architecture (Postgres, Solr, SIR, RabbitMQ, Redis) but removes the multi-step manual setup by adding bootstrap and scheduling services.
 
 ## Highlights
 
@@ -9,6 +9,7 @@ This repo is a streamlined, automation-first wrapper around the official MusicBr
 - Prebuilt Solr indexes downloaded by default
 - Replication and indexing schedules controlled via simple env values
 - Helper scripts for first run, validation, and manual jobs
+- API Bridge betwallowing cached queries from Lidarr to MusicBrainz
 
 ## Quick start
 
@@ -27,6 +28,7 @@ That’s it. The initial import and indexing can take hours and consume signific
 Edit `.env` for the most common settings. The file is organized with a “common” section at the top and advanced settings below.
 
 Common settings:
+
 - `MUSICBRAINZ_WEB_SERVER_HOST`
 - `MUSICBRAINZ_WEB_SERVER_PORT`
 - `STATIC_RESOURCES_LOCATION`
@@ -87,6 +89,7 @@ admin/render-network
 ## Replication
 
 Replication is controlled by three env vars (enabled by default):
+
 - `MUSICBRAINZ_REPLICATION_ENABLED=true|false`
 - `MUSICBRAINZ_REPLICATION_TIME=HH:MM`
 - `MUSICBRAINZ_REPLICATION_TOKEN=...`
@@ -104,6 +107,7 @@ admin/replicate-now
 If live indexing is not enabled, scheduled reindexing keeps search fresh.
 
 Env controls:
+
 - `MUSICBRAINZ_INDEXING_ENABLED=true|false`
 - `MUSICBRAINZ_INDEXING_TIME=HH:MM`
 - `MUSICBRAINZ_INDEXING_DAY=Sunday` (ignored when frequency is daily)
@@ -138,16 +142,19 @@ admin/bootstrap reset
 ## Publishing images
 
 GitHub Actions builds and publishes images on push to `master`:
+
 - GHCR: `ghcr.io/<owner>/<repo>/<service>`
 - Docker Hub (optional): `docker.io/<username>/musicbrainz-docker/<service>`
 
 To enable Docker Hub publishing, set repository secrets:
+
 - `DOCKERHUB_USERNAME`
 - `DOCKERHUB_TOKEN`
 
 ## Upstream updates
 
 This repo is not a fork. Upstream is configured as:
+
 - `origin` → your repo
 - `upstream` → `metabrainz/musicbrainz-docker`
 
