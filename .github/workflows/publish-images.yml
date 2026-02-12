@@ -309,11 +309,11 @@ jobs:
             cp local/network.override.yml deploy-out/local/
           else
             cat > deploy-out/local/network.override.yml <<'EOF'
-# Description: Network override (generated)
-networks:
-  default:
-    driver: bridge
-EOF
+          # Description: Network override (generated)
+          networks:
+            default:
+              driver: bridge
+          EOF
           fi
           cp build/solr/scripts/bootstrap-indexes.sh deploy-out/build/solr/scripts/
           cp .env deploy-out/.env
