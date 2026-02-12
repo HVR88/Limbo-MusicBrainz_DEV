@@ -145,10 +145,11 @@ jobs:
 
   publish-dockerhub:
     name: Publish to Docker Hub
-    if: ${{ secrets.DOCKERHUB_USERNAME && secrets.DOCKERHUB_TOKEN_MBMS }}
+    if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN_MBMS != '' }}
     runs-on: ubuntu-latest
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN_MBMS: ${{ secrets.DOCKERHUB_TOKEN_MBMS }}
       IMAGE_REGISTRY: docker.io
       IMAGE_REPO_PREFIX: mbms-plus
     strategy:
@@ -272,8 +273,10 @@ jobs:
 
   publish-deploy:
     name: Publish Deploy Repo
-    if: ${{ secrets.MBMS_TOKEN }}
+    if: ${{ env.MBMS_TOKEN != '' }}
     runs-on: ubuntu-latest
+    env:
+      MBMS_TOKEN: ${{ secrets.MBMS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
