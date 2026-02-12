@@ -185,6 +185,9 @@ jobs:
 
           source .env
 
+          MBMS_VERSION=$(cat VERSION)
+          echo "MBMS_VERSION=$MBMS_VERSION" >> "$GITHUB_ENV"
+
           echo "POSTGRES_VERSION=$POSTGRES_VERSION" >> "$GITHUB_ENV"
           echo "MB_SOLR_VERSION=$MB_SOLR_VERSION" >> "$GITHUB_ENV"
           echo "MUSICBRAINZ_SERVER_VERSION=$MUSICBRAINZ_SERVER_VERSION" >> "$GITHUB_ENV"
@@ -254,6 +257,7 @@ jobs:
 
           TAGS="$IMAGE_REGISTRY/$IMAGE_NAMESPACE/${IMAGE_REPO_PREFIX}-${{ matrix.name }}:$VERSION"
           TAGS="$TAGS"$'\n'"$IMAGE_REGISTRY/$IMAGE_NAMESPACE/${IMAGE_REPO_PREFIX}-${{ matrix.name }}:sha-$SHORT_SHA"
+          TAGS="$TAGS"$'\n'"$IMAGE_REGISTRY/$IMAGE_NAMESPACE/${IMAGE_REPO_PREFIX}-${{ matrix.name }}:$MBMS_VERSION"
 
           printf "TAGS<<EOF\n%s\nEOF\n" "$TAGS" >> "$GITHUB_ENV"
           printf "BUILD_ARGS<<EOF\n%s\nEOF\n" "$BUILD_ARGS" >> "$GITHUB_ENV"
@@ -282,6 +286,8 @@ jobs:
       # shellcheck disable=SC1091
         run: |
           set -e
+          MBMS_VERSION=$(cat VERSION)
+          echo "MBMS_VERSION=$MBMS_VERSION" >> "$GITHUB_ENV"
           SIR_VERSION=$(sed -n 's/^ARG SIR_VERSION=//p' build/sir/Dockerfile)
           RABBITMQ_VERSION=$(sed -n 's/^ARG RABBITMQ_VERSION=//p' build/rabbitmq/Dockerfile)
           RABBITMQ_VARIANT=$(sed -n 's/^ARG RABBITMQ_VARIANT=//p' build/rabbitmq/Dockerfile)
@@ -303,6 +309,7 @@ jobs:
           mkdir -p deploy-out/compose deploy-out/default deploy-out/local deploy-out/build/solr/scripts
 
           cp docker-compose.yml deploy-out/
+          cp VERSION deploy-out/
           cp compose/bootstrap.yml compose/indexing-cron.yml compose/lm-bridge.yml compose/dockerhub-images.yml deploy-out/compose/
           cp default/postgres.env default/indexer.ini deploy-out/default/
           if [ -f local/network.override.yml ]; then
@@ -359,6 +366,7 @@ jobs:
             return out
 
           lines = update_compose_file(lines)
+          lines = upsert(lines, "MBMS_VERSION", os.environ["MBMS_VERSION"])
           lines = upsert(lines, "MBMS_DOCKERHUB_NAMESPACE", "espressomatic")
           lines = upsert(lines, "MBMS_DOCKERHUB_REPO_PREFIX", "mbms-plus")
           lines = upsert(lines, "SIR_VERSION", os.environ["SIR_VERSION"])
