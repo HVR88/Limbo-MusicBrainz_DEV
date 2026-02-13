@@ -6,7 +6,7 @@ SCRIPT_NAME=$(basename "$0")
 MB_DOCKER_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 ENV_FILE="$MB_DOCKER_ROOT/.env"
-OUT_FILE="$MB_DOCKER_ROOT/local/network.override.yml"
+OUT_FILE="$MB_DOCKER_ROOT/default/network.override.yml"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo >&2 "$SCRIPT_NAME: missing .env. Run: admin/first-run"
@@ -24,7 +24,7 @@ if [[ "$compose_file" == *"compose/lm-bridge.yml"* ]]; then
   lmbridge_enabled=1
 fi
 
-mkdir -p "$MB_DOCKER_ROOT/local"
+mkdir -p "$MB_DOCKER_ROOT/default"
 
 case "$network_type" in
   ""|bridge)

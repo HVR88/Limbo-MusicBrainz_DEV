@@ -276,22 +276,23 @@ jobs:
         run: |
           set -e
           rm -rf deploy-out
-          mkdir -p deploy-out/compose deploy-out/default deploy-out/local deploy-out/build/solr/scripts
+          mkdir -p deploy-out/compose deploy-out/default deploy-out/admin deploy-out/build/solr/scripts
 
           cp docker-compose.yml deploy-out/
           cp deploy-assets/README.md deploy-out/README.md
           echo "$MBMS_NEXT_VERSION_FULL" > deploy-out/VERSION
           cp compose/bootstrap.yml compose/indexing-cron.yml compose/lm-bridge.yml compose/dockerhub-images.yml deploy-out/compose/
           cp default/postgres.env default/indexer.ini deploy-out/default/
-          if [ -f local/network.override.yml ]; then
-            cp local/network.override.yml deploy-out/local/
+          cp -R deploy-assets/admin/. deploy-out/admin/
+          if [ -f default/network.override.yml ]; then
+            cp default/network.override.yml deploy-out/default/
           else
             printf '%s\n' \
               '# Description: Network override (generated)' \
               'networks:' \
               '  default:' \
               '    driver: bridge' \
-              > deploy-out/local/network.override.yml
+              > deploy-out/default/network.override.yml
           fi
           cp build/solr/scripts/bootstrap-indexes.sh deploy-out/build/solr/scripts/
           cp .env deploy-out/.env
@@ -333,7 +334,7 @@ jobs:
               else:
                 out.append(line)
             if not found:
-              out.insert(0, "COMPOSE_FILE=docker-compose.yml:compose/bootstrap.yml:compose/indexing-cron.yml:compose/lm-bridge.yml:local/network.override.yml:compose/dockerhub-images.yml")
+              out.insert(0, "COMPOSE_FILE=docker-compose.yml:compose/bootstrap.yml:compose/indexing-cron.yml:compose/lm-bridge.yml:default/network.override.yml:compose/dockerhub-images.yml")
             return out
 
           lines = update_compose_file(lines)

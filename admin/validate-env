@@ -99,8 +99,8 @@ case "$network_type" in
     fi
     ;;
   macvlan|ipvlan)
-    if [ -z "${COMPOSE_FILE:-}" ] || [[ "${COMPOSE_FILE:-}" != *"local/network.override.yml"* ]]; then
-      echo >&2 "COMPOSE_FILE must include local/network.override.yml when MUSICBRAINZ_NETWORK_TYPE is '$network_type'."
+    if [ -z "${COMPOSE_FILE:-}" ] || [[ "${COMPOSE_FILE:-}" != *"default/network.override.yml"* ]]; then
+      echo >&2 "COMPOSE_FILE must include default/network.override.yml when MUSICBRAINZ_NETWORK_TYPE is '$network_type'."
       ok=0
     fi
 
