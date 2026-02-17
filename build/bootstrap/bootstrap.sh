@@ -36,6 +36,15 @@ if [[ "$BOOTSTRAP_DB" == "1" ]]; then
     touch "$DB_MARKER"
   else
     log "Creating database and importing dumps. This can take hours."
+    # Avoid interactive licensing prompt in non-interactive bootstrap runs.
+    if [[ "$BOOTSTRAP_FETCH_DUMPS" == "1" ]]; then
+      if [[ ! -f /media/dbdump/.for-commercial-use && ! -f /media/dbdump/.for-non-commercial-use \
+        && ! -f /media/searchdump/.for-commercial-use && ! -f /media/searchdump/.for-non-commercial-use ]]; then
+        log "Seeding non-commercial use marker files to prevent interactive prompt."
+        mkdir -p /media/dbdump /media/searchdump
+        touch /media/dbdump/.for-non-commercial-use /media/searchdump/.for-non-commercial-use
+      fi
+    fi
     if [[ "$BOOTSTRAP_FETCH_DUMPS" == "1" ]]; then
       if [[ -n "$BOOTSTRAP_WGET_OPTIONS" ]]; then
         createdb.sh -fetch -wget-opts "$BOOTSTRAP_WGET_OPTIONS"
