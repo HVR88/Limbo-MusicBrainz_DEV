@@ -93,8 +93,7 @@ jobs:
           if not m:
             raise SystemExit(f"VERSION format invalid: {version!r}")
           major, minor, release, build = map(int, m.groups())
-          next_release = release + 1
-          tag = f"{major}.{minor}.{next_release}"
+          tag = f"{major}.{minor}.{release}"
           print(f"DOCKER_TAG_VERSION={tag}")
           PY
 
@@ -252,11 +251,9 @@ jobs:
           if not m:
             raise SystemExit(f"VERSION format invalid: {version!r}")
           major, minor, release, build = map(int, m.groups())
-          next_release = release + 1
-          tag = f"{major}.{minor}.{next_release}"
+          tag = f"{major}.{minor}.{release}"
           print(f"MBMS_TAG_VERSION={tag}")
-          next_version_full = f"{major}.{minor}.{next_release}.0"
-          print(f"MBMS_NEXT_VERSION_FULL={next_version_full}")
+          print(f"MBMS_VERSION_FULL={version}")
           PY
           SIR_VERSION=$(sed -n 's/^ARG SIR_VERSION=//p' build/sir/Dockerfile)
           RABBITMQ_VERSION=$(sed -n 's/^ARG RABBITMQ_VERSION=//p' build/rabbitmq/Dockerfile)
@@ -280,7 +277,7 @@ jobs:
 
           cp docker-compose.yml deploy-out/
           cp deploy-assets/README.md deploy-out/README.md
-          echo "$MBMS_NEXT_VERSION_FULL" > deploy-out/VERSION
+          echo "$MBMS_VERSION_FULL" > deploy-out/VERSION
           cp compose/bootstrap.yml compose/indexing-cron.yml compose/lm-bridge.yml compose/dockerhub-images.yml deploy-out/compose/
           cp default/postgres.env default/indexer.ini deploy-out/default/
           cp -R deploy-assets/admin/. deploy-out/admin/
@@ -338,6 +335,7 @@ jobs:
             return out
 
           lines = update_compose_file(lines)
+          lines = upsert(lines, "MBMS_PLUS_VERSION", os.environ["MBMS_TAG_VERSION"])
           lines = upsert(lines, "MBMS_DOCKERHUB_NAMESPACE", "espressomatic")
           lines = upsert(lines, "MBMS_DOCKERHUB_REPO_PREFIX", "mbms-plus")
           lines = upsert(lines, "SIR_VERSION", os.environ["SIR_VERSION"])
@@ -418,7 +416,6 @@ jobs:
           if not m:
             raise SystemExit(f"VERSION format invalid: {version!r}")
           major, minor, release, build = map(int, m.groups())
-          release += 1
           print(f"{major}.{minor}.{release}")
           PY
           )
