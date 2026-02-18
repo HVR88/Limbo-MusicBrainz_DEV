@@ -1,3 +1,6 @@
+# LEGACY: Compose fragments are not kept in sync with the deploy monolithic compose.
+# Deploy uses deploy-assets/docker-compose.yml by default.
+
 # Description: Build and run local development copy of SIR
 
 services:

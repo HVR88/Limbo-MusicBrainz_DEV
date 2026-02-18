@@ -1,3 +1,6 @@
+# LEGACY: Compose fragments are not kept in sync with the deploy monolithic compose.
+# Deploy uses deploy-assets/docker-compose.yml by default.
+
 # Description: Enable MusicBrainz replication as a cron job
 
 services:
