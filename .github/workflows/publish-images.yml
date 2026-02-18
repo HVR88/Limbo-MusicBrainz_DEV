@@ -39,6 +39,9 @@ jobs:
           - name: mq
             context: build/rabbitmq
             dockerfile: build/rabbitmq/Dockerfile
+          - name: assets
+            context: .
+            dockerfile: build/deploy-assets/Dockerfile
     steps:
       - uses: actions/checkout@v4
 
@@ -158,6 +161,9 @@ jobs:
               VERSION="$RABBITMQ_TAG"
               BUILD_ARGS=$'RABBITMQ_VERSION='"$RABBITMQ_VERSION"$'\nRABBITMQ_VARIANT='"$RABBITMQ_VARIANT"$'\nRABBITMQ_TAG='"$RABBITMQ_TAG"
               ;;
+            assets)
+              VERSION="$DOCKER_TAG_VERSION"
+              ;;
             *)
               echo "Unknown image: ${{ matrix.name }}" >&2
               exit 1
@@ -187,28 +193,32 @@ jobs:
           set -e
           case "${{ matrix.name }}" in
             db)
-              SHORT_DESC="MBMS PLUS (1 of 6): DB"
+              SHORT_DESC="MBMS PLUS (1 of 7): DB"
               README_FILE=".github/dockerhub/README-db.md"
               ;;
             musicbrainz)
-              SHORT_DESC="MBMS PLUS (2 of 6): MusicBrainz"
+              SHORT_DESC="MBMS PLUS (2 of 7): MusicBrainz"
               README_FILE=".github/dockerhub/README-musicbrainz.md"
               ;;
             bootstrap)
-              SHORT_DESC="MBMS PLUS (3 of 6): Bootstrap"
+              SHORT_DESC="MBMS PLUS (3 of 7): Bootstrap"
               README_FILE=".github/dockerhub/README-bootstrap.md"
               ;;
             search)
-              SHORT_DESC="MBMS PLUS (4 of 6): Search"
+              SHORT_DESC="MBMS PLUS (4 of 7): Search"
               README_FILE=".github/dockerhub/README-search.md"
               ;;
             indexer)
-              SHORT_DESC="MBMS PLUS (5 of 6): Indexer"
+              SHORT_DESC="MBMS PLUS (5 of 7): Indexer"
               README_FILE=".github/dockerhub/README-indexer.md"
               ;;
             mq)
-              SHORT_DESC="MBMS PLUS (6 of 6): MQ"
+              SHORT_DESC="MBMS PLUS (6 of 7): MQ"
               README_FILE=".github/dockerhub/README-mq.md"
+              ;;
+            assets)
+              SHORT_DESC="MBMS PLUS (7 of 7): Assets"
+              README_FILE=".github/dockerhub/README-assets.md"
               ;;
             *)
               echo "Unknown image: ${{ matrix.name }}" >&2
@@ -273,26 +283,12 @@ jobs:
         run: |
           set -e
           rm -rf deploy-out
-          mkdir -p deploy-out/compose deploy-out/default deploy-out/admin deploy-out/build/solr/scripts
+          mkdir -p deploy-out
 
-          cp docker-compose.yml deploy-out/
+          cp deploy-assets/docker-compose.yml deploy-out/docker-compose.yml
           cp deploy-assets/README.md deploy-out/README.md
+          cp deploy-assets/example.env deploy-out/example.env
           echo "$MBMS_TAG_VERSION" > deploy-out/VERSION
-          cp compose/bootstrap.yml compose/indexing-cron.yml compose/lm-bridge.yml compose/dockerhub-images.yml deploy-out/compose/
-          cp default/postgres.env default/indexer.ini deploy-out/default/
-          cp -R deploy-assets/admin/. deploy-out/admin/
-          if [ -f default/network.override.yml ]; then
-            cp default/network.override.yml deploy-out/default/
-          else
-            printf '%s\n' \
-              '# Description: Network override (generated)' \
-              'networks:' \
-              '  default:' \
-              '    driver: bridge' \
-              > deploy-out/default/network.override.yml
-          fi
-          cp build/solr/scripts/bootstrap-indexes.sh deploy-out/build/solr/scripts/
-          cp example.env deploy-out/example.env
 
           python3 - <<'PY'
           from __future__ import annotations
@@ -318,23 +314,6 @@ jobs:
               out.append(prefix + value)
             return out
 
-          def update_compose_file(lines: list[str]) -> list[str]:
-            out: list[str] = []
-            found = False
-            for line in lines:
-              if line.startswith("COMPOSE_FILE="):
-                found = True
-                value = line.split("=", 1)[1]
-                if "compose/dockerhub-images.yml" not in value:
-                  value = value + ":compose/dockerhub-images.yml"
-                out.append("COMPOSE_FILE=" + value)
-              else:
-                out.append(line)
-            if not found:
-              out.insert(0, "COMPOSE_FILE=docker-compose.yml:compose/bootstrap.yml:compose/indexing-cron.yml:compose/lm-bridge.yml:default/network.override.yml:compose/dockerhub-images.yml")
-            return out
-
-          lines = update_compose_file(lines)
           lines = upsert(lines, "MBMS_PLUS_VERSION", os.environ["MBMS_TAG_VERSION"])
           lines = upsert(lines, "MBMS_DOCKERHUB_NAMESPACE", "espressomatic")
           lines = upsert(lines, "MBMS_DOCKERHUB_REPO_PREFIX", "mbms-plus")

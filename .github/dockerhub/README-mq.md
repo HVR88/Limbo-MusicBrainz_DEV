@@ -1,4 +1,4 @@
-# MBMS PLUS (6 of 6): MQ
+# MBMS PLUS (6 of 7): MQ
 
 RabbitMQ message broker for MBMS_PLUS.
 

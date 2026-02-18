@@ -1,4 +1,4 @@
-# MBMS PLUS (4 of 6): Search
+# MBMS PLUS (4 of 7): Search
 
 Solr search container for MBMS_PLUS.
 

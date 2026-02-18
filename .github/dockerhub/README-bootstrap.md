@@ -1,4 +1,4 @@
-# MBMS PLUS (3 of 6): Bootstrap
+# MBMS PLUS (3 of 7): Bootstrap
 
 Bootstrap helper container for MBMS_PLUS. It imports dumps and materialized tables and prepares initial data.
 

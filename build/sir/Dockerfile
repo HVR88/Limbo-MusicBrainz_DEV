@@ -42,7 +42,6 @@ LABEL org.metabrainz.sir.version="${SIR_VERSION}"
 RUN git clone --depth=1 --branch "v${SIR_VERSION}" https://github.com/metabrainz/sir.git /code \
     && cd /code \
     && pip install -r requirements.txt \
-    && rm -f /code/config.ini \
     && touch /etc/consul-template.conf
 
 WORKDIR /code
@@ -57,4 +56,5 @@ ENV POSTGRES_PASSWORD=musicbrainz
 
 
 COPY scripts/* /usr/local/bin/
+COPY config.ini /code/config.ini
 RUN chmod 0755 /usr/local/bin/indexer-*.sh
