@@ -5,7 +5,8 @@ set -euo pipefail
 # shellcheck source=deploy-assets/admin/_common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
 
-LOCK_FILE="$(dirname "${BASH_SOURCE[0]}")/replication.pid"
+LOCK_FILE="${LMBRIDGE_REPLICATION_STATUS_FILE:-/metadata/init-state/replication.pid}"
+mkdir -p "$(dirname "$LOCK_FILE")"
 
 if [[ -f "$LOCK_FILE" ]]; then
   if kill -0 "$(cat "$LOCK_FILE")" 2>/dev/null; then
