@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# shellcheck source=deploy-assets/admin/_common.sh
+source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
+
+dc exec -T musicbrainz bash -lc 'replication.sh > /tmp/replication.log 2>&1 &'
+echo "Replication started in background. Log: /tmp/replication.log"

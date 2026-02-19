@@ -17,7 +17,7 @@ This repo contains a streamlined, automation-first wrapper around the official M
 - Prebuilt Solr indexes downloaded by default
 - Replication and indexing schedules controlled via simple env values
 - Helper scripts for first run, validation, and manual jobs
-- API Bridge betwallowing cached queries from Lidarr to MusicBrainz
+- API Bridge allowing cached queries from Lidarr to MusicBrainz
 
 > [!CAUTION]
 >
