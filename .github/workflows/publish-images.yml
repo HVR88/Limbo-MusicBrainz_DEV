@@ -25,7 +25,7 @@ jobs:
             context: build/postgres-prebuilt
             dockerfile: build/postgres-prebuilt/Dockerfile
           - name: musicbrainz
-            context: build/musicbrainz-prebuilt
+            context: .
             dockerfile: build/musicbrainz-prebuilt/Dockerfile
           - name: bootstrap
             context: build/bootstrap
@@ -44,6 +44,14 @@ jobs:
             dockerfile: build/deploy-assets/Dockerfile
     steps:
       - uses: actions/checkout@v4
+
+      - name: Smoke check cron scripts
+        run: |
+          set -e
+          grep -q "build_replication_schedule" build/musicbrainz/scripts/start.sh
+          grep -q "build_replication_schedule" build/musicbrainz/scripts/load-crontab-only.sh
+          grep -q "MUSICBRAINZ_INDEXING_" build/sir/scripts/indexer-cron.sh
+          grep -q "indexer-reindex.sh" build/sir/scripts/indexer-cron.sh
 
       - name: Load build vars
       # shellcheck disable=SC1091

@@ -28,7 +28,8 @@ services:
 
   musicbrainz:
     build:
-      context: build/musicbrainz-prebuilt
+      context: .
+      dockerfile: build/musicbrainz-prebuilt/Dockerfile
     logging:
       driver: "json-file"
       options:
