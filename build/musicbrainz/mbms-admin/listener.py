@@ -3,6 +3,8 @@ import json
 import os
 import subprocess
 import threading
+import time
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Optional
 
@@ -10,6 +12,15 @@ HOST = os.getenv("MBMS_ADMIN_HOST", "0.0.0.0")
 PORT = int(os.getenv("MBMS_ADMIN_PORT", "8099"))
 KEY = os.getenv("MBMS_ADMIN_KEY", "")
 HEADER = os.getenv("MBMS_ADMIN_HEADER", "X-MBMS-Key")
+NOTIFY_URL = os.getenv(
+    "MBMS_ADMIN_NOTIFY_URL", "http://lmbridge:5001/replication/notify"
+).strip()
+NOTIFY_HEADER = os.getenv("MBMS_ADMIN_NOTIFY_HEADER", "X-MBMS-Key")
+NOTIFY_KEY = os.getenv("MBMS_ADMIN_NOTIFY_KEY", "") or KEY
+try:
+    NOTIFY_TIMEOUT = int(os.getenv("MBMS_ADMIN_NOTIFY_TIMEOUT", "5"))
+except ValueError:
+    NOTIFY_TIMEOUT = 5
 LOCK = os.getenv("MBMS_ADMIN_LOCK", "/tmp/replication.pid")
 SCRIPT = (
     os.getenv("MBMS_ADMIN_REPL_SCRIPT")
@@ -52,9 +63,37 @@ def start_replication() -> int:
     return proc.pid
 
 
-def wait_and_clear(pid: int) -> None:
+def notify_replication(pid: int, exit_code: int, duration: int) -> None:
+    if not NOTIFY_URL:
+        return
+    payload = {
+        "pid": pid,
+        "exit_code": exit_code,
+        "status": "ok" if exit_code == 0 else "error",
+        "duration": duration,
+    }
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(NOTIFY_URL, data=data, method="POST")
+    req.add_header("Content-Type", "application/json")
+    if NOTIFY_KEY:
+        req.add_header(NOTIFY_HEADER, NOTIFY_KEY)
     try:
-        os.waitpid(pid, 0)
+        with urllib.request.urlopen(req, timeout=NOTIFY_TIMEOUT):
+            pass
+    except Exception:
+        pass
+
+
+def wait_and_clear(pid: int, start_time: float) -> None:
+    exit_code = -1
+    try:
+        _, status = os.waitpid(pid, 0)
+        exit_code = os.waitstatus_to_exitcode(status)
+    except Exception:
+        exit_code = -1
+    duration = max(0, int(time.monotonic() - start_time))
+    try:
+        notify_replication(pid, exit_code, duration)
     finally:
         clear_lock()
 
@@ -91,12 +130,15 @@ class Handler(BaseHTTPRequestHandler):
             clear_lock()
 
         try:
+            start_time = time.monotonic()
             pid = start_replication()
         except Exception as exc:
             clear_lock()
             return self._json(500, {"ok": False, "error": str(exc)})
 
-        threading.Thread(target=wait_and_clear, args=(pid,), daemon=True).start()
+        threading.Thread(
+            target=wait_and_clear, args=(pid, start_time), daemon=True
+        ).start()
         return self._json(200, {"ok": True, "pid": pid})
 
     def do_GET(self):
