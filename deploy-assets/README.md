@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HVR88/Limbo-DEV/main/assets/limbo-icon.png" alt="Limbo" width="500" />
+  <img src="https://raw.githubusercontent.com/HVR88/Limbo-DEV/main/assets/limbo-icon.png" alt="Limbo" width="400" />
 </p>
 
 # <p align="center">**_MusicBrainz Mirror Server PLUS_**<br><sub>**Full stack with Limbo for Lidarr**</sub></p>
