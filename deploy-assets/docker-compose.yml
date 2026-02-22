@@ -1,7 +1,7 @@
 # Description: Deploy compose file with managed assets sync
 
-x-require-env: ${COMPOSE_PROFILES}
-x-require-env-guard: ${COMPOSE_PROFILES:?You need to edit the .env file before starting. Uncomment COMPOSE_PROFILES=mbms.}
+x-require-env: ${MUSICBRAINZ_REPLICATION_TOKEN}
+x-require-env-guard: ${MUSICBRAINZ_REPLICATION_TOKEN:?You need to set MUSICBRAINZ_REPLICATION_TOKEN in .env before starting.}
 
 x-assets-depends: &assets_depends
   assets:
@@ -23,7 +23,7 @@ volumes:
 
 services:
   assets:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${MBMS_DOCKERHUB_NAMESPACE:-espressomatic}/${MBMS_DOCKERHUB_REPO_PREFIX:-mbms-plus}-assets:latest
     pull_policy: always
     volumes:
@@ -35,15 +35,9 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        if [ -z "${COMPOSE_PROFILES:-}" ] || ! printf ',%s,' "${COMPOSE_PROFILES}" | grep -q ',mbms,'; then
-          echo "You need to edit the .env file before starting. Uncomment COMPOSE_PROFILES=mbms." >&2
+        if [ -z "${MUSICBRAINZ_REPLICATION_TOKEN:-}" ]; then
+          echo "Missing MUSICBRAINZ_REPLICATION_TOKEN. Set it in .env before running docker compose up." >&2
           exit 1
-        fi
-        if [ -n "${MUSICBRAINZ_REPLICATION_ENABLED:-1}" ] && [ "${MUSICBRAINZ_REPLICATION_ENABLED}" != "0" ] && [ "${MUSICBRAINZ_REPLICATION_ENABLED}" != "false" ]; then
-          if [ -z "${MUSICBRAINZ_REPLICATION_TOKEN:-}" ]; then
-            echo "Missing MUSICBRAINZ_REPLICATION_TOKEN. Set it in .env before running docker compose up." >&2
-            exit 1
-          fi
         fi
         echo "OK: replication token check passed."
     env_file:
@@ -53,7 +47,7 @@ services:
       <<: *assets_depends
 
   db:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${MBMS_DOCKERHUB_NAMESPACE:-espressomatic}/${MBMS_DOCKERHUB_REPO_PREFIX:-mbms-plus}-db:latest
     logging:
       driver: "json-file"
@@ -75,7 +69,7 @@ services:
       <<: *assets_depends
 
   mq:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${MBMS_DOCKERHUB_NAMESPACE:-espressomatic}/${MBMS_DOCKERHUB_REPO_PREFIX:-mbms-plus}-mq:latest
     hostname: "mq"
     logging:
@@ -96,7 +90,7 @@ services:
       <<: *assets_depends
 
   redis:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: redis:3-alpine
     logging:
       driver: "json-file"
@@ -112,7 +106,7 @@ services:
       <<: *assets_depends
 
   bootstrap:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${MBMS_DOCKERHUB_NAMESPACE:-espressomatic}/${MBMS_DOCKERHUB_REPO_PREFIX:-mbms-plus}-bootstrap:latest
     environment:
       - TZ=${TZ:-America/Toronto}
@@ -137,7 +131,7 @@ services:
         condition: service_started
 
   search-bootstrap:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${MBMS_DOCKERHUB_NAMESPACE:-espressomatic}/${MBMS_DOCKERHUB_REPO_PREFIX:-mbms-plus}-search:latest
     entrypoint: ["/usr/local/bin/bootstrap-indexes.sh"]
     environment:
@@ -163,7 +157,7 @@ services:
         condition: service_completed_successfully
 
   search:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${MBMS_DOCKERHUB_NAMESPACE:-espressomatic}/${MBMS_DOCKERHUB_REPO_PREFIX:-mbms-plus}-search:latest
     logging:
       driver: "json-file"
@@ -190,7 +184,7 @@ services:
         condition: service_completed_successfully
 
   musicbrainz:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${MBMS_DOCKERHUB_NAMESPACE:-espressomatic}/${MBMS_DOCKERHUB_REPO_PREFIX:-mbms-plus}-musicbrainz:latest
     logging:
       driver: "json-file"
@@ -248,7 +242,7 @@ services:
         condition: service_completed_successfully
 
   indexer:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${MBMS_DOCKERHUB_NAMESPACE:-espressomatic}/${MBMS_DOCKERHUB_REPO_PREFIX:-mbms-plus}-indexer:latest
     environment:
       - TZ=${TZ:-America/Toronto}
@@ -269,7 +263,7 @@ services:
         condition: service_started
 
   indexer-cron:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${MBMS_DOCKERHUB_NAMESPACE:-espressomatic}/${MBMS_DOCKERHUB_REPO_PREFIX:-mbms-plus}-indexer:latest
     environment:
       - TZ=${TZ:-America/Toronto}
@@ -292,7 +286,7 @@ services:
         condition: service_started
 
   limbo-init:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${LIMBO_IMAGE:-espressomatic/limbo:latest}
     pull_policy: always
     entrypoint: ["/bin/bash", "/metadata/init/init-mbdb.sh"]
@@ -315,7 +309,7 @@ services:
         condition: service_completed_successfully
 
   limbo:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${LIMBO_IMAGE:-espressomatic/limbo:latest}
     pull_policy: always
     ports:

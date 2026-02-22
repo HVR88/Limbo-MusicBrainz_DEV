@@ -5,7 +5,7 @@
 
 services:
   indexer-cron:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     build: build/sir
     env_file:
       - ./default/postgres.env

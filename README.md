@@ -28,7 +28,7 @@ This repo contains a streamlined, automation-first wrapper around the official M
 0. Get your Live Data Feed Access Token from Metabrainz first
    https://metabrainz.org/profile
 
-1. Copy `example.env` to `.env`, then edit it to match your environment. Uncomment `COMPOSE_PROFILES=mbms`.
+1. Copy `example.env` to `.env`, then edit it to match your environment. Set `MUSICBRAINZ_REPLICATION_TOKEN`.
 
 ```bash
 cp example.env .env

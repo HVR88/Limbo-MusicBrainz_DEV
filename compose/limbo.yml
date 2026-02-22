@@ -8,7 +8,7 @@ volumes:
 
 services:
   limbo-init:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${LIMBO_IMAGE:-espressomatic/limbo:latest}
     pull_policy: always
     entrypoint: ["/bin/bash", "/metadata/init/init-mbdb.sh"]
@@ -30,7 +30,7 @@ services:
         condition: service_completed_successfully
 
   limbo:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: ${LIMBO_IMAGE:-espressomatic/limbo:latest}
     pull_policy: always
     ports:

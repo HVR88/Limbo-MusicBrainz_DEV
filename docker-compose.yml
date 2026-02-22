@@ -1,7 +1,7 @@
 # Description: Default compose file, with host port for musicbrainz
 
-x-require-env: ${COMPOSE_PROFILES}
-x-require-env-guard: ${COMPOSE_PROFILES:?You need to edit the .env file before starting. Uncomment COMPOSE_PROFILES=mbms.}
+x-require-env: ${MUSICBRAINZ_REPLICATION_TOKEN}
+x-require-env-guard: ${MUSICBRAINZ_REPLICATION_TOKEN:?You need to set MUSICBRAINZ_REPLICATION_TOKEN in .env before starting.}
 
 volumes:
   mqdata:
@@ -17,7 +17,7 @@ volumes:
 
 services:
   db:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     build:
       context: build/postgres-prebuilt
     image: musicbrainz-docker_db:${POSTGRES_VERSION:-16}
@@ -39,7 +39,7 @@ services:
       - "5432"
 
   musicbrainz:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     build:
       context: .
       dockerfile: build/musicbrainz-prebuilt/Dockerfile
@@ -88,7 +88,7 @@ services:
       - redis
 
   indexer:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     build: build/sir
     env_file:
       - ./default/postgres.env
@@ -107,7 +107,7 @@ services:
       - search
 
   search:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     build:
       context: build/solr
       args:
@@ -134,7 +134,7 @@ services:
       - solrdump:/var/cache/musicbrainz/solr-backups
 
   mq:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     build: build/rabbitmq
     hostname: "mq"
     logging:
@@ -153,7 +153,7 @@ services:
       - "5672"
 
   redis:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     image: redis:3-alpine
     logging:
       driver: "json-file"

@@ -9,15 +9,9 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        if [ -z "${COMPOSE_PROFILES:-}" ] || ! printf ',%s,' "${COMPOSE_PROFILES}" | grep -q ',mbms,'; then
-          echo "You need to edit the .env file before starting. Uncomment COMPOSE_PROFILES=mbms." >&2
+        if [ -z "${MUSICBRAINZ_REPLICATION_TOKEN:-}" ]; then
+          echo "Missing MUSICBRAINZ_REPLICATION_TOKEN. Set it in .env before running docker compose up." >&2
           exit 1
-        fi
-        if [ -n "${MUSICBRAINZ_REPLICATION_ENABLED:-1}" ] && [ "${MUSICBRAINZ_REPLICATION_ENABLED}" != "0" ] && [ "${MUSICBRAINZ_REPLICATION_ENABLED}" != "false" ]; then
-          if [ -z "${MUSICBRAINZ_REPLICATION_TOKEN:-}" ]; then
-            echo "Missing MUSICBRAINZ_REPLICATION_TOKEN. Set it in .env before running docker compose up." >&2
-            exit 1
-          fi
         fi
         echo "OK: replication token check passed."
     env_file:
@@ -25,7 +19,7 @@ services:
     restart: "no"
 
   bootstrap:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     build:
       context: build/bootstrap
       args:
@@ -53,7 +47,7 @@ services:
         condition: service_started
 
   search-bootstrap:
-    profiles: ["mbms"]
+    profiles: ["${COMPOSE_PROFILES:-mbms}"]
     build:
       context: build/solr
       args:

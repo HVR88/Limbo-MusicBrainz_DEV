@@ -47,7 +47,7 @@ Copy `example.env` to `.env`, then edit the top section before first run:
 cp example.env .env
 ```
 
-- Uncomment the line **`COMPOSE_PROFILES=mbms`**
+- Set **`MUSICBRAINZ_REPLICATION_TOKEN`**
 - Set the **`MUSICBRAINZ_REPLICATION_TOKEN`** (required for replication)
 - `MUSICBRAINZ_WEB_SERVER_HOST` ('localhost' default, edit as needed)
 - `MUSICBRAINZ_WEB_SERVER_PORT` ('5000' default, edit as needed)
