@@ -1,7 +1,7 @@
-# MBMS PLUS (4 of 7): Search
+# Limbo (4 of 7): Search
 
-Solr search container for MBMS_PLUS.
+Solr search container for Limbo.
 
-MBMS_PLUS release: "MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge".
+Limbo release: "MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge".
 
-This image is one component of the full MBMS_PLUS stack and is intended to be used with the rest of the services.
+This image is one component of the full Limbo stack and is intended to be used with the rest of the services.

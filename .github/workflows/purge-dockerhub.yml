@@ -1,10 +1,10 @@
-name: Purge Docker Hub Tags (MBMS_PLUS)
+name: Purge Docker Hub Tags (Limbo)
 
 on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: "Type YES to delete all mbms-plus-* tags"
+        description: "Type YES to delete all limbo-* tags"
         required: true
         default: "NO"
 
@@ -65,12 +65,12 @@ jobs:
           )["token"]
 
           repos = [
-            "mbms-plus-db",
-            "mbms-plus-musicbrainz",
-            "mbms-plus-bootstrap",
-            "mbms-plus-search",
-            "mbms-plus-indexer",
-            "mbms-plus-mq",
+            "limbo-db",
+            "limbo-musicbrainz",
+            "limbo-bootstrap",
+            "limbo-search",
+            "limbo-indexer",
+            "limbo-mq",
           ]
 
           for repo in repos:

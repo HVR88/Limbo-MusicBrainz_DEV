@@ -1,5 +1,5 @@
-# MBMS PLUS (7 of 7): Assets
+# Limbo (7 of 7): Assets
 
-Managed deploy assets sync image for MBMS_PLUS.
+Managed deploy assets sync image for Limbo.
 
 This image refreshes admin scripts and managed deploy files on the host when the stack starts or updates.

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HVR88/Limbo-DEV/main/assets/limbo-icon.png" alt="Limbo" width="250" />
+  <img src="https://raw.githubusercontent.com/HVR88/Limbo_DEV/main/assets/limbo-icon.png" alt="Limbo" width="250" />
 </p>
 
 # MusicBrainz Mirror Server PLUS (Development Branch)
@@ -8,7 +8,7 @@ This repo contains a streamlined, automation-first wrapper around the official M
 
 > [!NOTE]
 >
-> **To deploy pre-built docker containers, clone production repo: https://github.com/HVR88/MBMS_PLUS**
+> **To deploy pre-built docker containers, clone production repo: https://github.com/HVR88/Limbo**
 
 ## Highlights
 

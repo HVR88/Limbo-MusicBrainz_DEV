@@ -26,7 +26,7 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN_MBMS: ${{ secrets.DOCKERHUB_TOKEN_MBMS }}
       IMAGE_REGISTRY: docker.io
-      IMAGE_REPO_PREFIX: mbms-plus
+      IMAGE_REPO_PREFIX: limbo
       DOCKER_CHANNEL_TAG: ${{ inputs.channel == 'test' && 'test' || 'latest' }}
     strategy:
       fail-fast: false
@@ -227,31 +227,31 @@ jobs:
           set -e
           case "${{ matrix.name }}" in
             db)
-              SHORT_DESC="MBMS PLUS (1 of 7): DB"
+              SHORT_DESC="Limbo (1 of 7): DB"
               README_FILE=".github/dockerhub/README-db.md"
               ;;
             musicbrainz)
-              SHORT_DESC="MBMS PLUS (2 of 7): MusicBrainz"
+              SHORT_DESC="Limbo (2 of 7): MusicBrainz"
               README_FILE=".github/dockerhub/README-musicbrainz.md"
               ;;
             bootstrap)
-              SHORT_DESC="MBMS PLUS (3 of 7): Bootstrap"
+              SHORT_DESC="Limbo (3 of 7): Bootstrap"
               README_FILE=".github/dockerhub/README-bootstrap.md"
               ;;
             search)
-              SHORT_DESC="MBMS PLUS (4 of 7): Search"
+              SHORT_DESC="Limbo (4 of 7): Search"
               README_FILE=".github/dockerhub/README-search.md"
               ;;
             indexer)
-              SHORT_DESC="MBMS PLUS (5 of 7): Indexer"
+              SHORT_DESC="Limbo (5 of 7): Indexer"
               README_FILE=".github/dockerhub/README-indexer.md"
               ;;
             mq)
-              SHORT_DESC="MBMS PLUS (6 of 7): MQ"
+              SHORT_DESC="Limbo (6 of 7): MQ"
               README_FILE=".github/dockerhub/README-mq.md"
               ;;
             assets)
-              SHORT_DESC="MBMS PLUS (7 of 7): Assets"
+              SHORT_DESC="Limbo (7 of 7): Assets"
               README_FILE=".github/dockerhub/README-assets.md"
               ;;
             *)
@@ -331,7 +331,7 @@ jobs:
       - name: Checkout deploy repo
         uses: actions/checkout@v4
         with:
-          repository: HVR88/MBMS_PLUS
+          repository: HVR88/Limbo
           token: ${{ secrets.MBMS_TOKEN }}
           ref: ${{ env.DEPLOY_BRANCH }}
           path: deploy
@@ -372,7 +372,7 @@ jobs:
             return out
 
           lines = upsert(lines, "MBMS_DOCKERHUB_NAMESPACE", "espressomatic")
-          lines = upsert(lines, "MBMS_DOCKERHUB_REPO_PREFIX", "mbms-plus")
+          lines = upsert(lines, "MBMS_DOCKERHUB_REPO_PREFIX", "limbo")
 
           env_path.write_text("\n".join(lines).rstrip() + "\n")
           PY
@@ -382,14 +382,11 @@ jobs:
           set -e
           rsync -a --delete --exclude .git deploy-out/ deploy/
 
-      - name: Create deploy zip
+      - name: Create release zip
+        if: ${{ inputs.channel == 'stable' }}
         run: |
           set -e
-          if [ "${{ inputs.channel }}" = "test" ]; then
-            ZIP_NAME="mbms-plus-deploy-test-${RELEASE_VERSION}.zip"
-          else
-            ZIP_NAME="mbms-plus-deploy-${RELEASE_VERSION}.zip"
-          fi
+          ZIP_NAME="limbo-${RELEASE_VERSION}.zip"
           rm -f "$ZIP_NAME"
           (cd deploy-out && zip -r "../$ZIP_NAME" .)
           echo "DEPLOY_ZIP_NAME=$ZIP_NAME" >> "$GITHUB_ENV"
@@ -410,30 +407,27 @@ jobs:
 
       - name: Tag and release deploy repo
         working-directory: deploy
+        if: ${{ inputs.channel == 'stable' }}
         env:
           GH_TOKEN: ${{ secrets.MBMS_TOKEN }}
         run: |
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ "${{ inputs.channel }}" = "test" ]; then
-            TAG="test-v${RELEASE_VERSION}"
-          else
-            TAG="v${RELEASE_VERSION}"
-          fi
+          TAG="v${RELEASE_VERSION}"
           echo "TAG_VERSION=$TAG" >> "$GITHUB_ENV"
 
           git fetch --tags
           if ! git rev-parse "$TAG" >/dev/null 2>&1; then
-            git tag -a "$TAG" -m "MBMS_PLUS ${RELEASE_VERSION}"
+            git tag -a "$TAG" -m "Limbo ${RELEASE_VERSION}"
             git push origin "$TAG"
           fi
 
-          if ! gh release view "$TAG" -R HVR88/MBMS_PLUS >/dev/null 2>&1; then
-            gh release create "$TAG" -R HVR88/MBMS_PLUS -t "MBMS_PLUS ${RELEASE_VERSION}" -n "Automated deploy release."
+          if ! gh release view "$TAG" -R HVR88/Limbo >/dev/null 2>&1; then
+            gh release create "$TAG" -R HVR88/Limbo -t "Limbo" -n "Automated release."
           fi
 
-          gh release upload "$TAG" -R HVR88/MBMS_PLUS "../${DEPLOY_ZIP_NAME}" --clobber
+          gh release upload "$TAG" -R HVR88/Limbo "../${DEPLOY_ZIP_NAME}" --clobber
 
   release:
     name: Tag Release and Bump Minor

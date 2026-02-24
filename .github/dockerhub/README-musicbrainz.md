@@ -1,7 +1,7 @@
-# MBMS PLUS (2 of 7): MusicBrainz
+# Limbo (2 of 7): MusicBrainz
 
-MusicBrainz web server container for MBMS_PLUS.
+MusicBrainz web server container for Limbo.
 
-MBMS_PLUS release: "MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge".
+Limbo release: "MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge".
 
-This image is one component of the full MBMS_PLUS stack and is intended to be used with the rest of the services.
+This image is one component of the full Limbo stack and is intended to be used with the rest of the services.

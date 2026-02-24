@@ -1,7 +1,7 @@
-# MBMS PLUS (6 of 7): MQ
+# Limbo (6 of 7): MQ
 
-RabbitMQ message broker for MBMS_PLUS.
+RabbitMQ message broker for Limbo.
 
-MBMS_PLUS release: "MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge".
+Limbo release: "MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge".
 
-This image is one component of the full MBMS_PLUS stack and is intended to be used with the rest of the services.
+This image is one component of the full Limbo stack and is intended to be used with the rest of the services.

@@ -1,7 +1,7 @@
-# MBMS PLUS (5 of 7): Indexer
+# Limbo (5 of 7): Indexer
 
-SIR indexer/cron container for MBMS_PLUS search reindexing.
+SIR indexer/cron container for Limbo search reindexing.
 
-MBMS_PLUS release: "MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge".
+Limbo release: "MusicBrainz Mirror Server PLUS - Full stack with Lidarr API Bridge".
 
-This image is one component of the full MBMS_PLUS stack and is intended to be used with the rest of the services.
+This image is one component of the full Limbo stack and is intended to be used with the rest of the services.
