@@ -3,7 +3,8 @@
 
 # Description: Limbo (internal-only) using prebuilt image
 volumes:
-  limbo_init_state:
+  limbo_bridge_init_state:
+    name: limbo_bridge_init_state
     driver: local
 
 services:
@@ -37,7 +38,7 @@ services:
       - "${LIMBO_PORT:-5001}:5001"
     volumes:
       - ./VERSION:/mbms/VERSION:ro
-      - limbo_init_state:/metadata/init-state
+      - limbo_bridge_init_state:/metadata/init-state
     environment:
       TZ: ${TZ:-America/Toronto}
       # --- General ---
