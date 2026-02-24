@@ -117,18 +117,28 @@ folder name as the project name, which is why volumes are prefixed `mbms_plus_`.
 If you rename the folder, Compose will look for new volumes unless you pin the
 project name.
 
-You have two options:
+First, stop the running containers
 
-1. **Keep using existing `mbms_plus_*` volumes (no migration)**
+```
+docker compose stop
+```
+
+You have two options for migration:
+
+1. **Keep using existing `mbms_plus_*` parent folder and volumes (no migration)**
    - Keep the folder name as `mbms_plus`, **or**
    - Replace `docker-compose.yml` and `example.env` with the new release assets
      (image names changed to `limbo-*`), then re-apply your `.env` values
    - Set `COMPOSE_PROJECT_NAME=mbms_plus` in `.env`
 
 2. **Migrate to new `limbo_*` volumes (recommended for new layout)**
+   - Rename the docker folder to `limbo`:
+     ```bash
+     mv MBMS_PLUS limbo
+     ```
    - Replace `docker-compose.yml` and `example.env` with the new release assets
-     (image names changed to `limbo-*`), then re-apply your `.env` values
-   - Run the migration script:
+     (image names changed to `limbo-*`), then re-apply your `.env` values.
+   - The migration script is included in the deploy repo under `admin/`:
      ```bash
      admin/upgrade-volumes
      ```

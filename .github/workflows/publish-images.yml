@@ -354,6 +354,8 @@ jobs:
           cp deploy-assets/docker-compose.yml deploy-out/docker-compose.yml
           cp deploy-assets/README.md deploy-out/README.md
           cp deploy-assets/example.env deploy-out/example.env
+          mkdir -p deploy-out/admin
+          cp admin/upgrade-volumes deploy-out/admin/upgrade-volumes
           echo "$MBMS_VERSION_FULL" > deploy-out/VERSION
 
           python3 - <<'PY'
