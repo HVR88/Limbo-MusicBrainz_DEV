@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/HVR88/Limbo_DEV/main/assets/limbo-icon.png" alt="MusicBrainz" width="400" />
 </p>
 
-# <p align="center">**_MusicBrainz Mirror Server_**<br><sub>**Full stack (no Limbo)**</sub></p>
+# <p align="center">**_MusicBrainz Mirror Server_**<br><sub>**Basic Full Stack (no Limbo Tools)**</sub></p>
 
 ## Introduction
 
@@ -94,15 +94,6 @@ docker compose up -d
 
 If a release updates `docker-compose.yml`, run `docker compose up -d` again
 after the first restart so the new compose file is applied.
-
-## Migration note (repo rename)
-
-If you previously cloned the old deploy repo, update your git remote once:
-
-1. `git remote set-url origin https://github.com/HVR88/MusicBrainz-MBMS`
-2. `git pull`
-
-If you were using zip downloads, get future updates from the new repo/releases.
 
 ## Notes
 
