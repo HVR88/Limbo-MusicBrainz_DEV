@@ -8,8 +8,10 @@ This repo contains a streamlined, automation-first wrapper around the official M
 
 > [!NOTE]
 >
-> **To deploy pre-built docker containers, clone production repo:**
+> **You probably want the pre-built docker containers:**
+>
 > **Limbo Full stack:** https://github.com/HVR88/Limbo
+>
 > **MusicBrainz only (no Limbo Tools):** https://github.com/HVR88/MusicBrainz-MBMS
 
 ## Highlights
